@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Assignment</title>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+		<script>
+			var page = 1;
+			var gettingPage = false;
+			var threshold = 100;
+			var params = {
+				'feature': 'popular',
+				'consumer_key': 'UwYxXKmkEzRIhK4EykqRRlItxrdij6eo0Igwz3Wc',
+				'image_size': 3,
+				'rpp': 20,
+				'exclude': 'nude',
+			};
+			$(document).ready(function() {
+				getPage(page);
+				$(window).trigger('hashchange');
+			});
+			$(window).on('hashchange', function() {
+				var feature = location.hash.replace('#', '');
+				console.log(feature);
+				params['feature'] = feature;
+				getPage(1);
+				$('.options a').removeClass('active');
+				$('.options a[href="#' + feature + '"]').addClass('active');
+			});
+			$(window).scroll(function() {
+				console.log('document.body.scrollTop: ' + document.body.scrollTop);
+				console.log('window.innerHeight: ' + window.innerHeight);
+				console.log('document.body.clientHeight: ' + document.body.clientHeight);
+				if (document.body.scrollTop + window.innerHeight > document.body.clientHeight - threshold) {
+					getPage(++page);
+				}
+			});
+			function getPage(page) {
+				if (gettingPage) return;
+				params['page'] = page;
+				gettingPage = true;
+				$.get(
+					'https://api.500px.com/v1/photos.json?' + $.param(params),
+					function (data) {
+						var markup = '';
+						$.each(data.photos, function(key, photo) {
+							var img = '';
+							var div = '';
+							var p = '';
+							var photoCount = $('.f00 > div').length;
+							img += '<img src="';
+							img += photo.image_url;
+							img += '"/>';
+							p += '<p>';
+							p += photo.name || 'Untitled';
+							p += '</p>';
+							div += '<div data-photo-count="' + photoCount + '">';
+							div += img + p;
+							div += '</div>';
+							markup += div;
+						});
+						if (page == 1) {
+							$('.f00px').html(markup);
+						} else {
+							$('.f00px').append(markup);
+						}
+						gettingPage = false;
+					}
+				);
+			}
+		</script>
+		<style>
+			/* clearfix */
+			.cf:before,.cf:after{content: " ";display: table}.cf:after {clear: both}.cf {*zoom: 1}
+
+			html, body {
+				background: #222;
+				font-family: sans-serif;
+				margin: 0;
+				padding: 0;
+			}
+			.f00px, .options {
+				margin: 0 auto;
+				padding: 10px;
+				width: 1200px;
+			}
+			.f00px div, .options a {
+				margin: 10px;
+			}
+			.f00px div {
+				float: left;
+				height: 280px;
+				overflow: hidden;
+				position: relative;
+				width: 280px;
+			}
+			.f00px img, .options a {
+				border-radius: 2px;
+			}
+			.f00px p, .options a {
+				background: rgba(255, 255, 255, .2);
+			}
+			.f00px p {
+				background: rgba(255, 255, 255, .2);
+				bottom: -40px;
+				height: 20px;
+				line-height: 20px;
+				margin: 0;
+				overflow: hidden;
+				padding: 10px;
+				position: absolute;
+				text-overflow: ellipsis;
+				transition: bottom .5s;
+				white-space: nowrap;
+				width: 100%;
+			}
+			.f00px div:hover p {
+				bottom: 0;
+			}
+			.options a {
+				color: #222;
+				display: inline-block;
+				font-weight: bold;
+				margin-bottom: 0;
+				padding: 10px;
+				text-decoration: none;
+			}
+			.options a.active {
+				background: #333;
+				color: rgba(255, 255, 255, .2);
+			}
+		</style>
+	</head>
+	<body>
+		<nav class="options">
+			<a href="#popular">Popular</a>
+			<a href="#fresh">Fresh</a>
+			<a href="#editors">Editors'</a>
+		</nav>
+		<div class="f00px cf"></div>
+	</body>
+</html>
+

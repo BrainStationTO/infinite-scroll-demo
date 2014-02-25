@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>In class demo</title>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+		<script>
+			$(document).ready(function() {
+				var page;
+				var isLoading;
+				function getPage(next20) {
+					if (isLoading) return;
+					isLoading = true;
+					$.get('https://api.500px.com/v1/photos?feature=popular&consumer_key=MVMIjzAWM63MOzdT9zTJEfOrrxXqOM399E1h11Lc&page=' + next20, function(data) {
+						markup = '';
+						$.each(data.photos, function(key, photo) {
+							markup += '<div class="photo">';
+							markup += '<img src="' + photo.image_url + '" />';
+							markup += '<p>' + photo.description + '</p>';
+							markup += '</div>';
+						});
+						$('.f00px').append(markup);
+						isLoading = false;
+					});
+				}
+				$(window).scroll(function() {
+					var threshold = 100;
+					console.log('window.innerHeight: ' + window.innerHeight);
+					console.log('document.body.clientHeight: ' + document.body.clientHeight);
+					console.log('document.body.scrollTop: ' + document.body.scrollTop);
+					console.log(' ');
+					console.log(window.innerHeight + document.body.scrollTop, document.body.clientHeight);
+					if (window.innerHeight + document.body.scrollTop > document.body.clientHeight - threshold) {
+						getPage(++page);
+					}
+				});
+				getPage(1);
+			});
+		</script>
+		<style type="text/css" rel="stylesheet">
+			html, body {
+				margin: 0;
+				padding: 0;
+			}
+			.f00px .photo {
+				height: 300px;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="f00px"></div>
+		<a class="button" href="#">Click Me!</a>
+	</body>
+</html>
+
